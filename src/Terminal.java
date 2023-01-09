@@ -4,9 +4,13 @@ import java.util.Map;
 public class Terminal {
     private String nome;
     private ArrayList<Gate> gates;
-    enum tipologia {INTERNAZIONALE , NAZIONALE};
-    Map<Gate,Volo> gateDefault;
+    private Tipologia tipologia;
 
+    public Terminal(String nome, ArrayList<Gate> gates, Tipologia tipologia) {
+        this.nome = nome;
+        this.gates = gates;
+        this.tipologia = tipologia;
+    }
 
 
 }

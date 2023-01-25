@@ -1,20 +1,23 @@
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Orario implements Comparable<Orario> {
+public class Orario implements Comparable<Orario>, Serializable {
     private int ore;
     private int minuti;
-    private int secondi;
+    private String orario;
 
-    public Orario(int ore, int minuti, int secondi) {
-        if (ore<0 || ore>23)
-            throw new RuntimeException("Inserire delle ore adtte tra 0 e 23");
-        if (minuti<0 || minuti>59)
+    public Orario(String orario) {
+        this.orario = orario;
+        String[]or= orario.split(":");
+        int o = Integer.parseInt(or[0]);
+        int m = Integer.parseInt(or[1]);
+        if (o<0 || o>23)
+            throw new RuntimeException("Inserire delle ore adatte tra 0 e 23");
+        if (m<0 || m>59)
             throw new RuntimeException("Inserire dei minuti adatti tra 0 e 59");
-        if (secondi<0 || secondi>59)
-            throw new RuntimeException("Inserire dei secondi adatti tra 0 e 59");
-        this.ore = ore;
-        this.minuti = minuti;
-        this.secondi = secondi;
+        this.ore = o;
+        this.minuti= m;
+
     }
 
     public int getOre() {
@@ -25,20 +28,16 @@ public class Orario implements Comparable<Orario> {
         return minuti;
     }
 
-    public int getSecondi(){
-        return secondi;
-    }
+
 
     @Override
     public int compareTo(Orario o) {
-        //Controllo se l'orario è maggiore
+        //Controllo se l'orario è minore
         if (ore<o.ore) return -1;
         else if(minuti<o.minuti) return -1;
-        else if(secondi<o.secondi) return -1;
-        //Controllo se è minore
+        //Controllo se è maggiore
         if (ore>o.ore) return 1;
         else if(minuti>o.minuti) return 1;
-        else if(secondi>o.secondi) return 1;
         //Di default ritorno zero, ovvero quando sono uguali
         return 0;
     }
@@ -48,16 +47,16 @@ public class Orario implements Comparable<Orario> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Orario orario = (Orario) o;
-        return ore == orario.ore && minuti == orario.minuti && secondi == orario.secondi;
+        return ore == orario.ore && minuti == orario.minuti ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ore, minuti, secondi);
+        return Objects.hash(ore, minuti);
     }
 
     @Override
     public String toString() {
-        return ore + ":"+ minuti +":"+secondi;
+        return ore + ":"+ minuti;
     }
 }

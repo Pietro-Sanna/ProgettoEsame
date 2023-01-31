@@ -2,16 +2,18 @@ import java.io.*;
 import java.util.*;
 
 public class Aeroporto implements Serializable {
-    private String nome;
+    private Codice_IATA nome;
     private ArrayList<Volo> voliArrivo = new ArrayList<>();
     private ArrayList<Volo> voliPartenza = new ArrayList<>();
     private ArrayList<Terminal> terminals = new ArrayList<>();
     private TreeSet<DataMia> calendario = new TreeSet<>();
-    public Aeroporto(String nome) {
+    private ArrayList<Volo> voliCancellati= new ArrayList<>();
+
+    public Aeroporto(Codice_IATA nome) {
         this.nome = nome;
     }
 
-    public String getNome() {
+    public Codice_IATA getNome() {
         return nome;
     }
 
@@ -43,17 +45,17 @@ public class Aeroporto implements Serializable {
                 ArrayList<String> leggi = caricaNuovo(nomeFile);
 
                 for (String let : leggi) {
-
                     String[] a = let.split(";");
-                    if (a[0].equals(this.nome)) {
-                        this.voliPartenza.add(new Volo(a[0], a[1], new Orario(a[2]), new Orario(a[3]), Integer.parseInt(a[4]),
-                                Integer.parseInt(a[5]),new DataMia(a[6]), Tipologia.valueOf(a[7])));
+                    Codice_IATA iata = Codice_IATA.stringToIATA(a[0]);
+                    if (iata.equals(this.nome)) {
+                        this.voliPartenza.add(new Volo( iata , Codice_IATA.stringToIATA(a[1]), Orario.stringToOrario(a[2]), Orario.stringToOrario(a[3]), Integer.parseInt(a[4]),
+                                Integer.parseInt(a[5]),DataMia.stringToDataMia(a[6]), Tipologia.valueOf(a[7])));
                     }
-                    if (a[1].equals(this.nome)) {
-                        this.voliArrivo.add(new Volo(a[0], a[1], new Orario(a[2]), new Orario(a[3]), Integer.parseInt(a[4]),
-                                Integer.parseInt(a[5]), new DataMia(a[6]), Tipologia.valueOf(a[7])));
+                    if (!iata.equals(this.nome)) {
+                        this.voliArrivo.add(new Volo(iata, Codice_IATA.stringToIATA(a[1]),  Orario.stringToOrario(a[2]), Orario.stringToOrario(a[3]), Integer.parseInt(a[4]),
+                                Integer.parseInt(a[5]),DataMia.stringToDataMia(a[6]), Tipologia.valueOf(a[7])));
                     }
-                    calendario.add(new DataMia(a[6]));
+                    calendario.add(DataMia.stringToDataMia(a[6]));
 
                 }
                 cnt = false;
@@ -101,27 +103,33 @@ public class Aeroporto implements Serializable {
 
     public void aggiungiVolo() {
         Scanner in = new Scanner(System.in);
+        //Aggiunge un volo da tastiera
         System.out.print("Inserisci codice IATA partenza: ");
-        String IATAp = in.next();
+        Codice_IATA IATAp = Codice_IATA.stringToIATA(in.next());
         System.out.print("Inserisci codice IATA arrivo: ");
-        String IATAa = in.next();
+        Codice_IATA IATAa = Codice_IATA.stringToIATA(in.next());
         System.out.print("Inserisci orario partenza: ");
-        Orario or_p = new Orario(in.next());
+        Orario or_p = Orario.stringToOrario(in.next());
         System.out.print("Inserisci orario arrivo: ");
-        Orario or_a = new Orario(in.next());
+        Orario or_a = Orario.stringToOrario(in.next());
         System.out.print("Inserisci numero passeggeri: ");
         Integer num_p = in.nextInt();
         System.out.print("Inserisci capienza massima passeggeri: ");
         Integer num_max = in.nextInt();
         System.out.print("Inserisci data volo (gg/mm/aaaa): ");
-        DataMia data = new DataMia(in.next()) ;
+        DataMia data =  DataMia.stringToDataMia(in.next()) ;
         System.out.print("Inserisci tipologia volo (INTERNAZIONALE/NAZIONALE): ");
-        Tipologia tip = Tipologia.valueOf(in.next());
-
-        Volo v = new Volo(IATAp, IATAa, or_p, or_a, num_p, num_max, data , tip);
-
+        Tipologia tip;
+        while (true) {
+            try {
+                tip = Tipologia.valueOf(in.next());
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Tipologia volo sbagliata, reinserire");
+            }
+        }
+        Volo v = new Volo(IATAp, IATAa, or_p, or_a, num_p, num_max, data, tip);
         calendario.add(data);
-
         if (IATAp.equals(nome)) {
             voliPartenza.add(v);
         } else {
@@ -130,9 +138,11 @@ public class Aeroporto implements Serializable {
         for (Terminal t : terminals) {
             if (t.getTipologia().equals(tip)) if (t.aggiungiVoloGates(v)) break;
         }
+
     }
 
     public void caricaGateDefault(ArrayList<Volo> voli) {
+        //Aggiunge al gate
         for (Volo v : voli) {
             if (!v.isPassato()) {
                 for (Terminal t : terminals) {
@@ -145,14 +155,15 @@ public class Aeroporto implements Serializable {
     }
 
     public void stampaGateDefault() {
+        //Stampa i gate di default
         for(DataMia d: calendario){
             if(!d.passato()) {
                 System.out.println("Programmazione in data: " + d);
                 for (Terminal t : terminals) {
                     System.out.println("Dal terminal " + t.getNome());
                     for (Gate g : t.getGates()) {
-                        if (!g.getProgrammazione().isEmpty()) {
-                            g.stampaProgrammazione(d);
+                        if (!g.programmazione.isEmpty()) {
+                            g.stampaProgrammazione(d, nome);
                         }
                     }
                 }
@@ -161,13 +172,13 @@ public class Aeroporto implements Serializable {
     }
 
     public void stampaGatePerData(String data) {
-        DataMia data_cercata = new DataMia(data);
+        DataMia data_cercata = DataMia.stringToDataMia(data);
         System.out.println("In data " + data);
         for (Terminal t : terminals) {
             System.out.println("Dal terminal " + t.getNome());
             for (Gate g : t.getGates()) {
-                if (!(g.getProgrammazione().isEmpty()&& g.getProgrammazione().containsKey(data_cercata))) {
-                    System.out.print(g.getProgrammazione().get(data_cercata) );
+                if (!(g.programmazione.isEmpty()) && g.programmazione.containsKey(data_cercata)) {
+                    System.out.print(g.programmazione.get(data_cercata) );
                 }
             }
         }
@@ -177,32 +188,118 @@ public class Aeroporto implements Serializable {
     public String toString() {
         return
                 "Nome = " + nome + "\n" +
-                        "Voli Arrivo = \n" + voliArrivo + "\n" +
-                        "Voli Partenza = \n" + voliPartenza + "\n";
+                "Voli Arrivo = \n" + voliArrivo + "\n" +
+                "Voli Partenza = \n" + voliPartenza ;
     }
 
-    public int cancellaVolo() {
-        Scanner in = new Scanner(System.in);
-        System.out.print("Inserisci codice IATA partenza: ");
-        String IATAp = in.next();
-        System.out.print("Inserisci codice IATA arrivo: ");
-        String IATAa = in.next();
-        System.out.print("Inserisci data volo: ");
-        DataMia data = new DataMia(in.next());
-
+    public boolean cancellaVolo(Volo v) {
+        v.setStato(Stato.CANCELLATO);
+        voliCancellati.add(v);
         for (Terminal t : terminals) {
-            for (Gate g : t.getGates()) {
-                Volo v = g.getProgrammazione().get(data);
-                if (v != null && v.ricerca(IATAp, IATAa, data)!=null) {
-                    g.getProgrammazione().remove(data, v);
-                    if (IATAp.equals(this.nome)) voliPartenza.remove(v);
-                    else voliArrivo.remove(v);
-                    return 1;
-                }
+            Gate g = t.trovaGate(v);
+            if (g!=null) {
+                g.getProgrammazione().remove(v.getData(),v);
+                if(v.getIATA_Partenza().equals(this.nome)) voliPartenza.remove(v);
+                if(v.getIATA_Arrivo().equals(this.nome)) voliArrivo.remove(v);
+                return true;
             }
         }
-        return -1;
+     return false;
     }
 
+    public Volo ricercaVoli(){
+        Scanner in = new Scanner(System.in);
+        System.out.print("Inserisci codice IATA partenza: ");
+        Codice_IATA IATAp = Codice_IATA.stringToIATA(in.next());
+        System.out.print("Inserisci codice IATA arrivo: ");
+        Codice_IATA IATAa = Codice_IATA.stringToIATA(in.next());
+        System.out.print("Inserisci data volo: ");
+        DataMia data =  DataMia.stringToDataMia(in.next());
+        while (true) {
+            Volo v;
+            for (Terminal t : terminals) {
+                for (Gate g : t.getGates()) {
+                    v = g.controllaData(data);
+                    if(v!=null && v.ricerca(IATAp, IATAa, data)) {
+                        return v;
+                    }
+                }
+            }
+            System.out.print("Volo non trovato, vuoi reinserire i dati?" +
+                    "\nInserisci no per chiudere oppure qualunque altro carattere per continuare: ");
+            if(in.next().toLowerCase(Locale.ROOT).equals("no")) break;
+        }
+        return null;
+    }
 
+    public boolean modificaStatoVolo(Volo v){
+        Scanner in = new Scanner(System.in);
+        Stato stato;
+        while(true) {
+            System.out.print("Inserisci stato: ");
+            try {
+                stato = Stato.valueOf(in.next());
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Stato non accettato, scegliere tra "+ Stato.variStati());
+            }
+        }
+       if (v.setStato(stato)) {
+           if(stato.equals(Stato.CANCELLATO))
+               cancellaVolo(v);
+           return true;
+       }
+       else return false;
+    }
+
+    public Gate cercaGate(Volo v){
+        String ris ;
+        Gate g;
+        for(Terminal t :terminals){
+            g = t.trovaGate(v);
+            if(g != null) {
+                return g;
+            }
+        }
+        return null;
+    }
+
+    public Terminal trovaTerminal(Gate g){
+        for(Terminal t :terminals){
+            if(t.getGates().contains(g)) return t;
+        }
+        return null;
+    }
+
+    public boolean scambiaGateVolo(Volo v){
+        Gate g = scegliGateDisponibili(v);
+        Gate vecchio = cercaGate(v);
+        cancellaVolo(v);
+        for(Terminal t : terminals){
+            if (  !(g.equals(vecchio)) && t.getGates().contains(g)) {
+                g.caricaProgrammazione(v);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public Gate scegliGateDisponibili(Volo v){
+        Scanner in = new Scanner(System.in);
+        Gate ret = null;
+        for(Terminal t : terminals){
+            if(t.getTipologia().equals(v.getTipologia())){
+                for( Gate g : t.getGates()){
+                    System.out.print(g + "\nVa bene questo gate?");
+                    if(in.next().equalsIgnoreCase("si")) {
+                        ret = g;
+                        break;
+                    }
+                }
+            }
+            if(ret!=null) break;
+        }
+        return ret;
+    }
 }

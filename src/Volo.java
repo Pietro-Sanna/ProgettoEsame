@@ -1,10 +1,10 @@
 import java.io.Serializable;
-import java.util.*;
+import java.util.Objects;
 
 
 public class Volo implements Comparable<Volo>, Serializable {
-    private String IATAp; //codice aeroporto di partenza
-    private String IATAa; //codice aeroporto di arrivo
+    private Codice_IATA iATAp; //codice aeroporto di partenza
+    private Codice_IATA iATAa; //codice aeroporto di arrivo
     private Orario or_p; //orario partenza
     private Orario or_a; //orario arrivo
     private Integer num_pass; // numero passeggeri
@@ -15,13 +15,23 @@ public class Volo implements Comparable<Volo>, Serializable {
     private Tipologia tipologia;
 
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(iATAa.hashCode()+iATAp.hashCode()+ dataVolo.hashCode());
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(!(obj instanceof Volo)) return false;
+        Volo v = (Volo) obj;
+        if(v.getIATA_Partenza().equals(this.iATAp) && v.getIATA_Arrivo().equals(this.iATAa) && v.getData().equals(this.dataVolo)) return true;
+        return false;
+    }
 
-
-    public Volo(String IATAp, String IATAa, Orario or_p, Orario or_a, Integer num_pass, Integer cap_max,DataMia dataVolo,Tipologia tipologia)  {
-        if(IATAp.length()!=3) throw new RuntimeException("Il codice IATA deve essere composto da 3 caratteri ");
-        this.IATAp = IATAp;
-        this.IATAa = IATAa;
+    public Volo(Codice_IATA iATAp, Codice_IATA iATAa, Orario or_p, Orario or_a, Integer num_pass, Integer cap_max, DataMia dataVolo, Tipologia tipologia) {
+        this.iATAp = iATAp;
+        this.iATAa = iATAa;
         this.or_p = or_p;
         this.or_a = or_a;
         this.num_pass = num_pass;
@@ -29,19 +39,19 @@ public class Volo implements Comparable<Volo>, Serializable {
         this.dataVolo =dataVolo;
         this.stato = null;
         //controllo che il volo non sia già avvenuto
-        Date ogg = new Date() ;
-        if(dataVolo.getDate().before(ogg))
+        if(dataVolo.passato())
             passato = true;
 
         this.tipologia = tipologia;
+        this.stato = Stato.ORARIO;
     }
 
-    public String getIATA_Partenza() {
-        return IATAp;
+    public Codice_IATA getIATA_Partenza() {
+        return iATAp;
     }
 
-    public String getIATA_Arrivo() {
-        return IATAa;
+    public Codice_IATA getIATA_Arrivo() {
+        return iATAa;
     }
 
     public Orario getOrario_Partenza() {
@@ -75,8 +85,8 @@ public class Volo implements Comparable<Volo>, Serializable {
 
     @Override
     public String toString() {
-        return "Codice IATA aeroporto di partenza = " + IATAp + "\n" +
-                "Codice IATA aeroporto di arrivo = " + IATAa + "\n" +
+        return "Codice IATA aeroporto di partenza = " + iATAp + "\n" +
+                "Codice IATA aeroporto di arrivo = " + iATAa + "\n" +
                 "Orario di partenza = " + or_p + "\n" +
                 "Orario di arrivo previsto = " + or_a + "\n" +
                 "Numero passeggeri = " + num_pass + "\n" +
@@ -101,9 +111,14 @@ public class Volo implements Comparable<Volo>, Serializable {
         this.tipologia = tipologia;
     }
 
-    public Volo ricerca(String IATAp,String IATAa, DataMia da){
-        if(this.IATAp.equals(IATAp) && this.IATAa.equals(IATAa) && this.dataVolo.equals(da)) return this;
-        return null;
+    public boolean ricerca(Codice_IATA iATAp,Codice_IATA IATAa,DataMia data){;
+        return (this.iATAp.equals(iATAp) && this.iATAa.equals(IATAa) && this.dataVolo.equals(data));
+    }
+
+    public boolean setStato(Stato stato) {
+        this.stato = stato;
+        return true;
     }
 
 }
+

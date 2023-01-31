@@ -1,22 +1,21 @@
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Scanner;
 
 public class Orario implements Comparable<Orario>, Serializable {
     private int ore;
     private int minuti;
-    private String orario;
 
-    public Orario(String orario) {
-        this.orario = orario;
-        String[]or= orario.split(":");
-        int o = Integer.parseInt(or[0]);
-        int m = Integer.parseInt(or[1]);
-        if (o<0 || o>23)
+    public Orario(int ore, int minuti) {
+
+        if (ore<0 || ore>23)
             throw new RuntimeException("Inserire delle ore adatte tra 0 e 23");
-        if (m<0 || m>59)
+        if (minuti<0 || minuti>59)
             throw new RuntimeException("Inserire dei minuti adatti tra 0 e 59");
-        this.ore = o;
-        this.minuti= m;
+
+
+        this.ore = ore;
+        this.minuti= minuti;
 
     }
 
@@ -58,5 +57,36 @@ public class Orario implements Comparable<Orario>, Serializable {
     @Override
     public String toString() {
         return ore + ":"+ minuti;
+    }
+
+    public static Orario stringToOrario(String orario){
+        Scanner in = new Scanner(System.in);
+        int o = -1;
+        int m = -1;
+        Orario ris = null;
+        while (true) {
+            String[] or = orario.split(":");
+            int lunghezza = or.length;
+            if (lunghezza == 2) {
+                o = Integer.parseInt(or[0]);
+                m = Integer.parseInt(or[1]);
+            } else
+                if (lunghezza == 1) {
+                o = Integer.parseInt(or[0]);
+                m = 0;
+                } else {
+                    System.out.println("Formato ora errato, inserire orario con questo formato: oo:mm, oppure solo orario ");
+                    orario = in.nextLine();
+                }
+
+            try {
+                ris = new Orario(o,m);
+                break;
+            } catch (RuntimeException e){
+                System.out.println(e.getMessage() +"\nReinserire: ");
+                orario = in.nextLine();
+            }
+        }
+        return ris;
     }
 }

@@ -1,13 +1,11 @@
 import java.io.Serializable;
 import java.util.*;
 
-
-
 public class Gate implements Serializable {
     private Integer ID;
     private Integer posizione;
     private HashMap<Gate,Integer> distanza;
-    private HashMap<DataMia,Volo> programmazione = new HashMap<>();
+    public HashMap<DataMia,Volo> programmazione = new HashMap<>();
 
     public Gate(Integer ID, Integer posizione) {
         this.ID = ID;
@@ -39,13 +37,12 @@ public class Gate implements Serializable {
     }
 
 
-    public void stampaProgrammazione(DataMia data) {
+    public void stampaProgrammazione(DataMia data, Codice_IATA iata) {
         String tip =null;
         for(Map.Entry<DataMia,Volo> p : programmazione.entrySet()){
-            if(p.getValue().getIATA_Partenza().equals("AHO")) tip = "partirà";
+            if(p.getValue().getIATA_Partenza().equals(iata)) tip = "partirà";
             else tip = "atterrerà";
             if(data.equals(p.getKey()))  System.out.println( "Dal gate "+ this.ID +" "+ tip+ " il volo \n" + p.getValue());
-
         }
     }
 
@@ -65,4 +62,13 @@ public class Gate implements Serializable {
     public HashMap<Gate, Integer> getDistanza() {
         return distanza;
     }
+
+    public boolean trovaGate(Volo v) {
+        return programmazione.containsValue(v);
+    }
+
+    public Volo controllaData(DataMia data){
+        return programmazione.getOrDefault(data, null);
+    }
+
 }

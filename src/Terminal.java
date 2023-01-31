@@ -12,6 +12,12 @@ public class Terminal implements Serializable {
         this.tipologia = tipologia;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj) return true;
+        if(!( obj instanceof Terminal)) return false;
+        return nome.equals(((Terminal) obj).getNome());
+    }
 
     @Override
     public String toString() {
@@ -47,11 +53,21 @@ public class Terminal implements Serializable {
     }
 
     public boolean aggiungiVoloGates(Volo v){
+        //Aggiunge un volo al gate scelto
         for(int i =0; i<gates.size();i++){
-            if(!(gates.get(i).getProgrammazione().containsValue(v)))
+            if(!(gates.get(i).programmazione.containsValue(v)))
                 if(gates.get(i).caricaProgrammazione(v)) return true;
         }
         return false;
-
     }
+
+    public Gate trovaGate(Volo v){
+        //Ricerca all'interno dei gate il gate che contiene il volo indicato e restituisce l'elemento gate
+        for(Gate g : gates) {
+            if(g.trovaGate(v))
+                return g;
+        }
+        return null;
+    }
+
 }

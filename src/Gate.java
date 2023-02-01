@@ -4,7 +4,6 @@ import java.util.*;
 public class Gate implements Serializable {
     private Integer ID;
     private Integer posizione;
-    private HashMap<Gate,Integer> distanza;
     public HashMap<DataMia,Volo> programmazione = new HashMap<>();
 
     public Gate(Integer ID, Integer posizione) {
@@ -24,10 +23,6 @@ public class Gate implements Serializable {
 
     }
 
-    public void calcolaDistanza(Gate g){
-        Integer dis = Math.abs(this.posizione-g.posizione);
-        distanza.put(g,dis);
-    }
 
     @Override
     public String toString() {
@@ -59,15 +54,12 @@ public class Gate implements Serializable {
         return posizione;
     }
 
-    public HashMap<Gate, Integer> getDistanza() {
-        return distanza;
-    }
-
     public boolean trovaGate(Volo v) {
         return programmazione.containsValue(v);
     }
 
     public Volo controllaData(DataMia data){
+        //il metodo richiamato restituisce il valore contenuto all'interno del HashMap per la data
         return programmazione.getOrDefault(data, null);
     }
 

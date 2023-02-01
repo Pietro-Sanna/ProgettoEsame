@@ -25,8 +25,7 @@ public class Volo implements Comparable<Volo>, Serializable {
         if(this == obj) return true;
         if(!(obj instanceof Volo)) return false;
         Volo v = (Volo) obj;
-        if(v.getIATA_Partenza().equals(this.iATAp) && v.getIATA_Arrivo().equals(this.iATAa) && v.getData().equals(this.dataVolo)) return true;
-        return false;
+        return v.getIATA_Partenza().equals(this.iATAp) && v.getIATA_Arrivo().equals(this.iATAa) && v.getData().equals(this.dataVolo);
     }
 
     public Volo(Codice_IATA iATAp, Codice_IATA iATAa, Orario or_p, Orario or_a, Integer num_pass, Integer cap_max, DataMia dataVolo, Tipologia tipologia) {
@@ -91,8 +90,8 @@ public class Volo implements Comparable<Volo>, Serializable {
                 "Orario di arrivo previsto = " + or_a + "\n" +
                 "Numero passeggeri = " + num_pass + "\n" +
                 "Capienza massima = " + cap_max +"\n"+
-                "Data volo = " + dataVolo+"\n";
-                        //+ "Stato =" + stato + "\n";
+                "Data volo = " + dataVolo+"\n" +
+                "Stato =" + stato + "\n";
     }
 
     public boolean isPassato() {

@@ -63,7 +63,7 @@ public class Orario implements Comparable<Orario>, Serializable {
         Scanner in = new Scanner(System.in);
         int o = -1;
         int m = -1;
-        Orario ris = null;
+        Orario ris ;
         while (true) {
             String[] or = orario.split(":");
             int lunghezza = or.length;

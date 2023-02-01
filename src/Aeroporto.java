@@ -37,7 +37,7 @@ public class Aeroporto implements Serializable {
         return v.getStato();
     }
 
-
+    //Carica i voli dal file di testo
     public void caricaVoliDaFileTesto(String nomeFile) {
         boolean cnt = true;
         while (cnt) {
@@ -65,7 +65,7 @@ public class Aeroporto implements Serializable {
             }
         }
     }
-
+    //Carico terminal dal file di testo
     public void caricaTerminalDaFileTesto(String nomeFile) {
         try {
             ArrayList<String> leggi = caricaNuovo(nomeFile);
@@ -101,9 +101,9 @@ public class Aeroporto implements Serializable {
     }
 
 
+    //Aggiunge un volo da tastiera
     public void aggiungiVolo() {
         Scanner in = new Scanner(System.in);
-        //Aggiunge un volo da tastiera
         System.out.print("Inserisci codice IATA partenza: ");
         Codice_IATA IATAp = Codice_IATA.stringToIATA(in.next());
         System.out.print("Inserisci codice IATA arrivo: ");
@@ -142,7 +142,7 @@ public class Aeroporto implements Serializable {
     }
 
     public void caricaGateDefault(ArrayList<Volo> voli) {
-        //Aggiunge al gate
+        //Aggiunge al gate il volo
         for (Volo v : voli) {
             if (!v.isPassato()) {
                 for (Terminal t : terminals) {
@@ -241,7 +241,7 @@ public class Aeroporto implements Serializable {
                 stato = Stato.valueOf(in.next());
                 break;
             } catch (IllegalArgumentException e) {
-                System.out.println("Stato non accettato, scegliere tra "+ Stato.variStati());
+                System.out.println("Stato non accettato, scegliere tra "+ Arrays.toString(Stato.values()));
             }
         }
        if (v.setStato(stato)) {
@@ -271,18 +271,18 @@ public class Aeroporto implements Serializable {
         return null;
     }
 
-    public boolean scambiaGateVolo(Volo v){
+    public Gate scambiaGateVolo(Volo v){
         Gate g = scegliGateDisponibili(v);
         Gate vecchio = cercaGate(v);
-        cancellaVolo(v);
         for(Terminal t : terminals){
             if (  !(g.equals(vecchio)) && t.getGates().contains(g)) {
+                vecchio.programmazione.remove(v.getData(),v);
                 g.caricaProgrammazione(v);
-                return true;
+                return g;
             }
         }
 
-        return false;
+        return null;
     }
 
     public Gate scegliGateDisponibili(Volo v){

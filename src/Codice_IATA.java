@@ -32,7 +32,7 @@ public class Codice_IATA implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if(o instanceof String) return ((String)o).equals(codice);
+        if(o instanceof String) return o.equals(codice);
         if (!(o instanceof Codice_IATA )) return false;
         return codice.equals(((Codice_IATA) o).codice);
     }

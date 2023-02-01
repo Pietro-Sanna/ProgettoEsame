@@ -8,14 +8,14 @@ public class Main {
         Scanner in = new Scanner(System.in); // input da tastiera
         Aeroporto aeroporto ;
         String nomeAeroportoBin = "Aeroporto_bin";
-
+        //Controllo esistenza file binario
         try{
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(nomeAeroportoBin));
             aeroporto = (Aeroporto) ois.readObject();
             System.out.println("File binario caricato correttamente");
         }catch (IOException | ClassNotFoundException e) {
-            System.out.print("Inserisci codice IATA aeroporto: ");
-            aeroporto = new Aeroporto(Codice_IATA.stringToIATA(in.next()) );
+            System.out.println("Inserisci codice IATA aeroporto: ");
+            aeroporto = new Aeroporto(Codice_IATA.stringToIATA(in.nextLine()) );
            aeroporto = caricaAeroportoDaTesto(aeroporto);
             caricaFileBin(nomeAeroportoBin,aeroporto);
             System.out.println("File testo caricato correttamente");
@@ -51,7 +51,7 @@ public class Main {
 
                 case "3":
                     System.out.println("Inserisci data: ");
-                    String data = in.next();
+                    String data = in.nextLine();
                     aeroporto.stampaGatePerData(data);
                     break;
 
@@ -61,13 +61,14 @@ public class Main {
                     if(ricerca != null)
                         test =aeroporto.cancellaVolo(ricerca);
                     if ( test) System.out.println("Volo cancellato ");
-                    else System.out.print("Volo non cancellato ");
+                    else System.out.println("Volo non cancellato ");
                     ricerca = null;
                     break;
 
                 case "5":
                     ricerca(aeroporto);
-                    if(aeroporto.scambiaGateVolo(ricerca)){
+                    Gate g = aeroporto.scambiaGateVolo(ricerca);
+                    if(g!=null){
                         System.out.println("Gate scambiati");
                     } else System.out.println("Gate non scambiati");
                     break;
@@ -75,9 +76,9 @@ public class Main {
                 case "6":
                     ricerca(aeroporto);
                      if(aeroporto.modificaStatoVolo(ricerca))
-                         System.out.print("Stato volo modificato ");
+                         System.out.println("Stato volo modificato ");
                      else
-                         System.out.print("Errore");
+                         System.out.println("Errore");
                     break;
 
                 case "7":
@@ -123,6 +124,7 @@ public class Main {
         aeroporto.caricaGateDefault(aeroporto.getVoliPartenza());
         return aeroporto;
     }
+    //Metodo utilizzato per la ricerca di un volo in grado di mantenere una memoria per tale volo
     public static void ricerca(Aeroporto aeroporto){
         Scanner in = new Scanner(System.in);
         if (ricerca != null) {

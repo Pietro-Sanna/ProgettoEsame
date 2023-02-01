@@ -8,10 +8,4 @@ public enum Stato implements Serializable {
         return this.name();
     }
 
-    public static String variStati(){
-        return "\n"+Stato.ATTERRATO.name() +"\n"+ Stato.PARTITO.name() +"\n"+ Stato.RITARDO.name() +"\n"+ Stato.ORARIO.name()
-                +"\n"+ Stato.CANCELLATO.name();
-    }
-
-
 }
